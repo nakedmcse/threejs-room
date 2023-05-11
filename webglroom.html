@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+		<title>WebGL Room Layout</title>
+		<style>
+			body { margin: 0; }
+		</style>
+    </head>
+    <body>
+        <script type="module">
+            import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+            //Set scene, camera and renderer
+            const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+            //Ambient Light
+            //const light = new THREE.AmbientLight( 0xffffff );
+            const light = new THREE.PointLight();
+            light.position.set(200,200,200)
+            scene.add( light );
+
+            //Basic room
+            const roomGeometry = new THREE.BoxGeometry( 156, 96, 120 );
+			const roomMaterial = new THREE.MeshStandardMaterial( { color: 0xd3d3d3, opacity: 0.33, transparent: true, wireframe: true } );
+			const room = new THREE.Mesh( roomGeometry, roomMaterial );
+            room.position.x = 0;
+            room.position.y = 0;
+            room.position.z = 0;
+			scene.add( room );
+
+            //Door
+            const doorGeom = new THREE.PlaneGeometry(36,80);
+            const doorMaterial = new THREE.MeshStandardMaterial( {color: 0xff0000} );
+            const door = new THREE.Mesh(doorGeom,doorMaterial);
+            door.position.x = 0 + 78;
+            door.position.y = 0 - 8;
+            door.position.z = 0 + 60 - 18;
+            door.rotation.y = 1.5708;
+            scene.add( door );
+            
+            //Closet door
+            const closetGeom = new THREE.PlaneGeometry(36,80);
+            const closetMaterial = new THREE.MeshStandardMaterial( {color: 0xff0000} );
+            const closet = new THREE.Mesh(closetGeom,closetMaterial);
+            closet.position.x = 0 - 78 + 18;
+            closet.position.y = 0 - 8;
+            closet.position.z = 0 - 60;
+            closet.rotation.y = 0;
+            scene.add( closet );
+
+            //Window
+            const windowGeom = new THREE.PlaneGeometry(41,60);
+            const windowMaterial = new THREE.MeshStandardMaterial( {color: 0x0000ff, opacity: 0.5, transparent: true} );
+            const windowR = new THREE.Mesh(windowGeom,windowMaterial);
+            windowR.position.x = 0 - 78;
+            windowR.position.y = 0;
+            windowR.position.z = 0 - 60 + 20.5 + 50;
+            windowR.rotation.y = 1.5708;
+            scene.add( windowR );
+
+            //Bookcase 1 12x25x72
+			scene.add( makeBookCase(0-78+6, 0-48+36, 0+60-12.5) );
+
+            //Bookcase 2 12x25x72
+			scene.add( makeBookCase(0-78+6, 0-48+36, 0+60-53-25-14) );
+
+            //Craft Desk 24x53x30
+			scene.add( makeCraftDesk(0-78+12,0-48+15,0+60-28-25) );
+
+            //Blackshelf 1 18x36x72
+			scene.add( makeBlackShelf(0+78-34-36-18, 0-48+36, 0+60-9) );
+
+            //Blackshelf 2 18x36x72
+			scene.add( makeBlackShelf(0+78-34-18, 0-48+36, 0+60-9) );
+
+            //Jewlery Box 16x20x43
+			scene.add( makeJewelryBox(0+78-8, 0-48+21.5, 0-60+10) );
+
+            //Bed 80x60x24
+			scene.add( makeBed(0-78+30+36+22, 0-48+12, 0-60+40) );
+
+            //Pillows
+            scene.add( makePillows(0-78+30+36+6,0-48+24+0.5,0-60+12));
+            scene.add( makePillows(0-78+30+36+35,0-48+24+0.5,0-60+12));
+
+            //Nightstand 1 16x18x25
+			scene.add( makeNightstand(0-78+37+9, 0-48+12.5, 0-60+8) );
+
+            //Nightstand 2 16x18x25
+			scene.add( makeNightstand(0-78+37+18+63+9, 0-48+12.5, 0-60+8) );
+
+            //Build Pillows
+            function makePillows(bx, by, bz) {
+                //Pillow 6r x 24 capsule scaled 2x on z
+                //Geometries and materials
+                const pillowGeometry = new THREE.CapsuleGeometry(6,18);
+                const pillowMaterial = new THREE.MeshStandardMaterial( { color: 0xfafafa } );
+                //Assembly
+                const pillow = new THREE.Mesh(pillowGeometry,pillowMaterial);
+                pillow.scale.set(1,1,2);
+                pillow.rotateZ(1.5708);
+                pillow.position.set(bx,by,bz);
+                return pillow;
+            }
+
+            //Build Bed
+            function makeBed(bx, by, bz) {
+                //Bed 80x60x24
+                //Geometries and materials
+                const mattressGeometry = new THREE.BoxGeometry( 60, 12, 80 );
+                const base4x4Geometry = new THREE.BoxGeometry(4, 12, 4);
+                const basePlyGeometry = new THREE.BoxGeometry(60, 0.5, 40);
+			    const mattressMaterial = new THREE.MeshStandardMaterial( { color: 0x3cb371 } );
+                const baseMaterial = new THREE.MeshStandardMaterial( { color: 0xd2691e } );
+                //Assembly
+                const mattress = new THREE.Mesh(mattressGeometry, mattressMaterial);
+                mattress.position.set(bx,by+6.5,bz);
+                const rightFront4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                rightFront4x4.position.set(bx-28,by-6,bz-38);
+                const rightMiddle4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                rightMiddle4x4.position.set(bx-28,by-6,bz);
+                const rightBack4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                rightBack4x4.position.set(bx-28,by-6,bz+38);
+                const leftFront4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                leftFront4x4.position.set(bx+28,by-6,bz-38);
+                const leftMiddle4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                leftMiddle4x4.position.set(bx+28,by-6,bz);
+                const leftBack4x4 = new THREE.Mesh(base4x4Geometry,baseMaterial);
+                leftBack4x4.position.set(bx+28,by-6,bz+38);
+                const frontPly = new THREE.Mesh(basePlyGeometry, baseMaterial);
+                frontPly.position.set(bx,by,bz-20);
+                const backPly = new THREE.Mesh(basePlyGeometry, baseMaterial);
+                backPly.position.set(bx,by,bz+20);
+			    const bed = new THREE.Group();
+                bed.add(mattress);
+                bed.add(frontPly);
+                bed.add(backPly);
+                bed.add(rightFront4x4);
+                bed.add(rightMiddle4x4);
+                bed.add(rightBack4x4);
+                bed.add(leftFront4x4);
+                bed.add(leftMiddle4x4);
+                bed.add(leftBack4x4);
+                //Crossbars
+                bed.add(subassemblyBedCrossbar(bx,by-6,bz-38));
+                bed.add(subassemblyBedCrossbar(bx,by-6,bz));
+                bed.add(subassemblyBedCrossbar(bx,by-6,bz+38));
+                //Laterals
+                bed.add(subassemblyBedLateral(bx+28,by-6,bz+19));
+                bed.add(subassemblyBedLateral(bx-28,by-6,bz+19));
+                bed.add(subassemblyBedLateral(bx+28,by-6,bz-19));
+                bed.add(subassemblyBedLateral(bx-28,by-6,bz-19));
+                return bed;
+            }
+
+            function subassemblyBedCrossbar(bx, by, bz) {
+                //Geometries and materials
+                const base2x4UpFrontGeometry = new THREE.BoxGeometry(1.5, 12, 4);
+                const base2x4FrontGeometry = new THREE.BoxGeometry(49,1.5,4);
+                const baseMaterial = new THREE.MeshStandardMaterial( { color: 0xd2691e } );
+                //Assembly
+                const rightSide = new THREE.Mesh(base2x4UpFrontGeometry,baseMaterial);
+                rightSide.position.set(bx-25.25,by,bz);
+                const leftSide = new THREE.Mesh(base2x4UpFrontGeometry,baseMaterial);
+                leftSide.position.set(bx+25.25,by,bz);
+                const upperSide = new THREE.Mesh(base2x4FrontGeometry,baseMaterial);
+                upperSide.position.set(bx,by+5.25,bz);
+                const lowerSide = new THREE.Mesh(base2x4FrontGeometry,baseMaterial);
+                lowerSide.position.set(bx,by-5.25,bz);
+                const crossbar = new THREE.Group();
+                crossbar.add(rightSide);
+                crossbar.add(leftSide);
+                crossbar.add(upperSide);
+                crossbar.add(lowerSide);
+                return crossbar;
+            }
+
+            function subassemblyBedLateral(bx, by, bz) {
+                //Geometries and materials
+                const base2x4UpSideGeometry = new THREE.BoxGeometry(4, 12, 1.5);
+                const base2x4SideGeometry = new THREE.BoxGeometry(4,1.5,31);
+                const baseMaterial = new THREE.MeshStandardMaterial( { color: 0xd2691e } );
+                //Assembly
+                const rightSide = new THREE.Mesh(base2x4UpSideGeometry,baseMaterial);
+                rightSide.position.set(bx,by,bz-16.25);
+                const leftSide = new THREE.Mesh(base2x4UpSideGeometry,baseMaterial);
+                leftSide.position.set(bx,by,bz+16.25);
+                const upperSide = new THREE.Mesh(base2x4SideGeometry,baseMaterial);
+                upperSide.position.set(bx,by+5.25,bz);
+                const lowerSide = new THREE.Mesh(base2x4SideGeometry,baseMaterial);
+                lowerSide.position.set(bx,by-5.25,bz);
+                const lateral = new THREE.Group();
+                lateral.add(rightSide);
+                lateral.add(leftSide);
+                lateral.add(upperSide);
+                lateral.add(lowerSide);
+                return lateral;
+            }
+
+            //Build Craft Desk
+            function makeCraftDesk(bx, by, bz) {
+                //Craft Desk 24x53x30
+                //Geometries and materials
+                const topGeometry = new THREE.BoxGeometry( 24, 0.5, 53 );
+                const sideGeometry = new THREE.BoxGeometry( 24, 29.5, 0.5 );
+                const shelfGeometry = new THREE.BoxGeometry( 23, 0.5, 12 );
+                const frontGeometry = new THREE.BoxGeometry( 0.5, 27, 12 );
+                const drawerGeometry = new THREE.BoxGeometry( 24, 3, 27 );
+                const handleGeometry = new THREE.SphereGeometry( 0.75 );
+			    const craftdeskMaterial = new THREE.MeshStandardMaterial( { color: 0xa9a9a9 } );
+                const handleMaterial = new THREE.MeshStandardMaterial( { color: 0x0f0f0f } );
+                //Assembly
+			    const top = new THREE.Mesh( topGeometry, craftdeskMaterial );
+                top.position.set(bx,by+14.75,bz);
+                const leg1 = new THREE.Mesh( sideGeometry, craftdeskMaterial );
+                leg1.position.set(bx,by,bz-26.25);
+                const leg2 = new THREE.Mesh( sideGeometry, craftdeskMaterial );
+                leg2.position.set(bx,by,bz-14.25);
+                const leg3 = new THREE.Mesh( sideGeometry, craftdeskMaterial );
+                leg3.position.set(bx,by,bz+14.25);
+                const leg4 = new THREE.Mesh( sideGeometry, craftdeskMaterial );
+                leg4.position.set(bx,by,bz+26.25);
+                const drawer = new THREE.Mesh( drawerGeometry, craftdeskMaterial );
+                drawer.position.set(bx,by+13.5,bz);
+                const handle1 = new THREE.Mesh( handleGeometry, handleMaterial );
+                handle1.position.set(bx+12.5,by+13.5,bz-10);
+                const handle2 = new THREE.Mesh( handleGeometry, handleMaterial );
+                handle2.position.set(bx+12.5,by+13.5,bz+10);
+                const bottomleftshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                bottomleftshelf.position.set(bx,by-14.75,bz-20.25);
+                const middleleftshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                middleleftshelf.position.set(bx,by-0.75,bz-20.25);
+                const topleftshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                topleftshelf.position.set(bx,by+11.75,bz-20.25);
+                const backleft = new THREE.Mesh( frontGeometry, craftdeskMaterial );
+                backleft.position.set(bx-11.75,by-3,bz-20.25);
+                const bottomrightshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                bottomrightshelf.position.set(bx,by-14.75,bz+20.25);
+                const middlerightshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                middlerightshelf.position.set(bx,by-0.75,bz+20.25);
+                const toprightshelf = new THREE.Mesh( shelfGeometry, craftdeskMaterial );
+                toprightshelf.position.set(bx,by+11.75,bz+20.25);
+                const backright = new THREE.Mesh( frontGeometry, craftdeskMaterial );
+                backright.position.set(bx-11.75,by-3,bz+20.25);
+                const craftdesk = new THREE.Group();
+                craftdesk.add(top);
+                craftdesk.add(leg1);
+                craftdesk.add(leg2);
+                craftdesk.add(leg3);
+                craftdesk.add(leg4);
+                craftdesk.add(drawer);
+                craftdesk.add(handle1);
+                craftdesk.add(handle2);
+                craftdesk.add(bottomleftshelf);
+                craftdesk.add(middleleftshelf);
+                craftdesk.add(topleftshelf);
+                craftdesk.add(backleft);
+                craftdesk.add(bottomrightshelf);
+                craftdesk.add(middlerightshelf);
+                craftdesk.add(toprightshelf);
+                craftdesk.add(backright);
+                return craftdesk;
+            }
+
+            //Build Jewelry Box
+            function makeJewelryBox(bx, by, bz) {
+                //Jewlery Box 16x20x43
+                //Geometries and materials
+                const topGeometry = new THREE.BoxGeometry( 16, 0.5, 20 );
+                const legGeometry = new THREE.BoxGeometry( 1, 12, 1);
+                const sideGeometry = new THREE.BoxGeometry( 16, 30, 1);
+                const drawerGeometry = new THREE.BoxGeometry( 16, 3, 18);
+                const handleGeometry = new THREE.SphereGeometry( 0.75 );
+			    const jboxMaterial = new THREE.MeshStandardMaterial( { color: 0xd2b48c } );
+                const handleMaterial = new THREE.MeshStandardMaterial( { color: 0xeeeeee } );
+                //Assembly
+                const top = new THREE.Mesh(topGeometry,jboxMaterial);
+                top.position.set(bx,by+21.5,bz);
+                const leftside = new THREE.Mesh(sideGeometry,jboxMaterial);
+                leftside.position.set(bx,by+6.5,bz-7.5);
+                const lefthandle = new THREE.Mesh(handleGeometry,handleMaterial);
+                lefthandle.position.set(bx-8.5,by+6.5,bz-7.5);
+                const rightside = new THREE.Mesh(sideGeometry,jboxMaterial);
+                rightside.position.set(bx,by+6.5,bz+7.5);
+                const righthandle = new THREE.Mesh(handleGeometry,handleMaterial);
+                righthandle.position.set(bx-8.5,by+6.5,bz+7.5);
+                const bottom = new THREE.Mesh(topGeometry,jboxMaterial);
+                bottom.position.set(bx,by-9.5,bz);
+                const legfr = new THREE.Mesh(legGeometry,jboxMaterial);
+                legfr.position.set(bx-7.5,by-15.5,bz+9.5);
+                const legfl = new THREE.Mesh(legGeometry,jboxMaterial);
+                legfl.position.set(bx+7.5,by-15.5,bz+9.5);
+                const legbr = new THREE.Mesh(legGeometry,jboxMaterial);
+                legbr.position.set(bx-7.5,by-15.5,bz-9.5);
+                const legbl = new THREE.Mesh(legGeometry,jboxMaterial);
+                legbl.position.set(bx+7.5,by-15.5,bz-9.5);
+                const drawer0 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer0.position.set(bx,by+19.5,bz);
+                const drawer0handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer0handle.position.set(bx-8.5,by+19.5,bz);
+                const drawer1 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer1.position.set(bx,by+16.5,bz);
+                const drawer1handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer1handle.position.set(bx-8.5,by+16.5,bz);
+                const drawer2 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer2.position.set(bx,by+13.5,bz);
+                const drawer2handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer2handle.position.set(bx-8.5,by+13.5,bz);
+                const drawer3 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer3.position.set(bx,by+10.5,bz);
+                const drawer3handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer3handle.position.set(bx-8.5,by+10.5,bz);
+                const drawer4 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer4.position.set(bx,by+7.5,bz);
+                const drawer4handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer4handle.position.set(bx-8.5,by+7.5,bz);
+                const drawer5 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer5.position.set(bx,by+4.5,bz);
+                const drawer5handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer5handle.position.set(bx-8.5,by+4.5,bz);
+                const drawer6 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer6.position.set(bx,by+1.5,bz);
+                const drawer6handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer6handle.position.set(bx-8.5,by+1.5,bz);
+                const drawer7 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer7.position.set(bx,by-1.5,bz);
+                const drawer7handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer7handle.position.set(bx-8.5,by-1.5,bz);
+                const drawer8 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer8.position.set(bx,by-4.5,bz);
+                const drawer8handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer8handle.position.set(bx-8.5,by-4.5,bz);
+                const drawer9 = new THREE.Mesh(drawerGeometry,jboxMaterial);
+                drawer9.position.set(bx,by-7.5,bz);
+                const drawer9handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                drawer9handle.position.set(bx-8.5,by-7.5,bz);
+                const jbox = new THREE.Group();
+                jbox.add(top);
+                jbox.add(leftside);
+                jbox.add(lefthandle);
+                jbox.add(rightside);
+                jbox.add(righthandle);
+                jbox.add(bottom);
+                jbox.add(legfr);
+                jbox.add(legfl);
+                jbox.add(legbr);
+                jbox.add(legbl);
+                jbox.add(drawer0);
+                jbox.add(drawer0handle);
+                jbox.add(drawer1);
+                jbox.add(drawer1handle);
+                jbox.add(drawer2);
+                jbox.add(drawer2handle);
+                jbox.add(drawer3);
+                jbox.add(drawer3handle);
+                jbox.add(drawer4);
+                jbox.add(drawer4handle);
+                jbox.add(drawer5);
+                jbox.add(drawer5handle);
+                jbox.add(drawer6);
+                jbox.add(drawer6handle);
+                jbox.add(drawer7);
+                jbox.add(drawer7handle);
+                jbox.add(drawer8);
+                jbox.add(drawer8handle);
+                jbox.add(drawer9);
+                jbox.add(drawer9handle);
+                return jbox;
+            }
+
+            //Build Nightstand
+            function makeNightstand(bx, by, bz) {
+                //Nightstand 16x18x25
+                //Geometries and materials
+                const topGeometry = new THREE.BoxGeometry( 18, 0.5, 16 );
+                const legGeometry = new THREE.BoxGeometry( 1, 25, 1 );
+                const drawerGeometry = new THREE.BoxGeometry( 16, 6, 16 );
+                const handleGeometry = new THREE.SphereGeometry( 0.75 );
+			    const nstandMaterial = new THREE.MeshStandardMaterial( { color: 0xdaa520 } );
+			    const handleMaterial = new THREE.MeshStandardMaterial( { color: 0xeeeeee } );
+                //Assembly
+                const top = new THREE.Mesh(topGeometry,nstandMaterial);
+                top.position.set(bx,by+12.5,bz);
+                const legfr = new THREE.Mesh(legGeometry,nstandMaterial);
+                legfr.position.set(bx-8.5,by,bz-7.5);
+                const legfl = new THREE.Mesh(legGeometry,nstandMaterial);
+                legfl.position.set(bx+8.5,by,bz-7.5);
+                const legbr = new THREE.Mesh(legGeometry,nstandMaterial);
+                legbr.position.set(bx-8.5,by,bz+7.5);
+                const legbl = new THREE.Mesh(legGeometry,nstandMaterial);
+                legbl.position.set(bx+8.5,by,bz+7.5);
+                const drawer = new THREE.Mesh(drawerGeometry,nstandMaterial);
+                drawer.position.set(bx,by+9,bz);
+                const handle = new THREE.Mesh(handleGeometry,handleMaterial);
+                handle.position.set(bx,by+8,bz+8);
+                const bottom = new THREE.Mesh(topGeometry,nstandMaterial);
+                bottom.position.set(bx,by-10.5,bz);
+                const nightstand = new THREE.Group();
+                nightstand.add(top);
+                nightstand.add(bottom);
+                nightstand.add(legfr);
+                nightstand.add(legfl);
+                nightstand.add(legbr);
+                nightstand.add(legbl);
+                nightstand.add(drawer);
+                nightstand.add(handle);
+                return nightstand;
+            }
+
+            //Build bookcase
+            function makeBookCase(bx, by, bz) {
+                //Bookcase 12x25x72
+                //Geometries and materials
+                const sideGeometry = new THREE.BoxGeometry( 12, 72, 0.5 );
+                const shelfGeometry = new THREE.BoxGeometry( 12, 0.5, 25);
+			    const bookcaseMaterial = new THREE.MeshStandardMaterial( { color: 0xf5f5f5 } );
+			    //Assembly
+                const leftside = new THREE.Mesh(sideGeometry,bookcaseMaterial);
+                leftside.position.set(bx,by,bz-12.5);
+                const rightside = new THREE.Mesh(sideGeometry,bookcaseMaterial);
+                rightside.position.set(bx,by,bz+12.5);
+                const topshelf = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                topshelf.position.set(bx,by+36,bz);
+                const shelf1 = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                shelf1.position.set(bx,by+23,bz);
+                const shelf2 = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                shelf2.position.set(bx,by+10,bz);
+                const shelf3 = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                shelf3.position.set(bx,by-3,bz);
+                const shelf4 = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                shelf4.position.set(bx,by-16,bz);
+                const bottomshelf = new THREE.Mesh(shelfGeometry,bookcaseMaterial);
+                bottomshelf.position.set(bx,by-29,bz);
+                const bookcase = new THREE.Group();
+                bookcase.add(leftside);
+                bookcase.add(rightside);
+                bookcase.add(topshelf);
+                bookcase.add(shelf1);
+                bookcase.add(shelf2);
+                bookcase.add(shelf3);
+                bookcase.add(shelf4);
+                bookcase.add(bottomshelf);
+                return bookcase;
+            }
+
+            //Build Blackshelf
+            function makeBlackShelf(bx, by, bz) {
+                //Materials and Geometries
+                //Blackshelf 2 18x36x72
+                const shelfGeometry = new THREE.BoxGeometry( 36, 1, 18 );
+                const poleGeometry = new THREE.CylinderGeometry(1, 1, 72);
+			    const blackshelfMaterial = new THREE.MeshStandardMaterial( { color: 0xd2691e } );
+                //Assembly
+                const topshelf = new THREE.Mesh( shelfGeometry, blackshelfMaterial );
+                topshelf.position.set(bx,by+36,bz);
+                const shelf1 = new THREE.Mesh( shelfGeometry, blackshelfMaterial );
+                shelf1.position.set(bx,by+18,bz);
+                const shelf2 = new THREE.Mesh( shelfGeometry, blackshelfMaterial );
+                shelf2.position.set(bx,by,bz);
+                const shelf3 = new THREE.Mesh( shelfGeometry, blackshelfMaterial );
+                shelf3.position.set(bx,by-18,bz);
+                const bottomshelf = new THREE.Mesh( shelfGeometry, blackshelfMaterial );
+                bottomshelf.position.set(bx,by-36,bz);
+                const frontrightpole = new THREE.Mesh( poleGeometry, blackshelfMaterial );
+                frontrightpole.position.set(bx-18,by,bz+9);
+                const frontleftpole = new THREE.Mesh( poleGeometry, blackshelfMaterial );
+                frontleftpole.position.set(bx+18,by,bz+9);
+                const backrightpole = new THREE.Mesh( poleGeometry, blackshelfMaterial );
+                backrightpole.position.set(bx-18,by,bz-9);
+                const backleftpole = new THREE.Mesh( poleGeometry, blackshelfMaterial );
+                backleftpole.position.set(bx+18,by,bz-9);
+                const blackshelf = new THREE.Group();
+                blackshelf.add(topshelf);
+                blackshelf.add(shelf1);
+                blackshelf.add(shelf2);
+                blackshelf.add(shelf3);
+                blackshelf.add(bottomshelf);
+                blackshelf.add(frontleftpole);
+                blackshelf.add(frontrightpole);
+                blackshelf.add(backleftpole);
+                blackshelf.add(backrightpole);
+                return blackshelf;
+            }
+
+            //Set camera postion and render
+            camera.position.set(200,200,200);
+            camera.lookAt(0,0,0);
+
+            //Travesal function
+            var modifier = -1;
+
+            //Make camera rotate scene
+            function animate() {
+                requestAnimationFrame(animate);
+                camera.position.z += modifier;
+                camera.lookAt(0,0,0);
+                if(camera.position.z >= 500) modifier = -1;
+                if(camera.position.z <= -500) modifier = 1;
+                renderer.render( scene, camera );
+            }
+            
+            //Start the show
+            animate();
+            //renderer.render( scene, camera );
+        </script>
+    </body>
+</html>
